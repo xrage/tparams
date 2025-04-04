@@ -1,16 +1,14 @@
-# typed: false
+# frozen_string_literal: true
 
-module ParameterValidation
+
+module TParams
   # Provides instance-level validation methods for T::Struct objects
   # These methods are included in each instance of the struct
   module InstanceMethods
-    extend T::Sig
-
     # Custom validation logic - override in subclasses
     # This is where custom validation rules can be implemented
     #
     # @return [void]
-    sig { void }
     def validate
       nil
     end

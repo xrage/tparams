@@ -1,11 +1,9 @@
-# typed: false
+# frozen_string_literal: true
 
-module ParameterValidation
+module TParams
   # Handles the classification and analysis of property types
   # This is the central type handling system that determines how to process each property
   module TypeClassification
-    extend T::Sig
-
     # Determine the type category and actual type of a property
     # Classifies types into :array, :struct, :enum, :simple, or :primitive
     # Results are cached for performance.

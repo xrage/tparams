@@ -1,9 +1,9 @@
-# typed: false
-module ParameterValidation
+# frozen_string_literal: true
+
+module TParams
   # Handles processing and validation of ActionController parameters
   # This ensures parameters are properly structured and permitted before conversion
   module ParameterProcessing
-    extend T::Sig
 
     # Get the permitted keys for a struct class
     # This creates a structure of keys that can be used with params.permit
@@ -11,7 +11,6 @@ module ParameterValidation
     #
     # @param struct_class [Class] The T::Struct class
     # @return [Hash] A hash of permitted keys
-    sig { params(struct_class: T.class_of(T::Struct)).returns(T::Hash[Symbol, T.untyped]) }
     def permitted_keys(struct_class)
       # Use struct_class as cache key
       cache_key = struct_class.object_id

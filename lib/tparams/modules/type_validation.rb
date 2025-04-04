@@ -1,10 +1,9 @@
-# typed: false
+# frozen_string_literal: true
 
-module ParameterValidation
+module TParams
   # Handles validation of field values based on their types
   # This ensures that all values conform to their expected types
   module TypeValidation
-    extend T::Sig
 
     # Validate all the keys in a parameters hash against a struct class
     # Optimized to minimize object creation during validation

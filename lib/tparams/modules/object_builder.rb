@@ -1,10 +1,9 @@
-# typed: false
-module ParameterValidation
+# frozen_string_literal: true
+
+module TParams
   # Handles conversion of validated parameters to object instances
   # This creates properly typed objects from raw parameter values
   module ObjectBuilder
-    extend T::Sig
-
     # Convert parameters to objects based on their types
     # Creates a hash of properly typed values for creating a struct
     #
@@ -35,7 +34,7 @@ module ParameterValidation
     # @param type [Class] The target type
     # @param prop_info [Hash] The property information
     # @return [Object] The converted value
-    def convert_value_by_type(type_category, value, type, prop_info)
+    def convert_value_by_type(type_category, value, type, _prop_info)
       case type_category
       when :array
         convert_array_value(value, type)
@@ -61,6 +60,7 @@ module ParameterValidation
       element_category, actual_type = classify_type_object(element_type)
       value.map do |item|
         next nil if item.nil?
+
         convert_value_by_type(element_category, item, actual_type, nil)
       end
     end
