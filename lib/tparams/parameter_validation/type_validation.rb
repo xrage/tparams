@@ -1,4 +1,5 @@
 # typed: false
+
 module ParameterValidation
   # Handles validation of field values based on their types
   # This ensures that all values conform to their expected types
@@ -26,7 +27,7 @@ module ParameterValidation
         # Check for required fields - this is a fast path
         if required_field_missing?(value, prop_info)
           current_path = path + [key_sym]
-          set_nested_error(errors, current_path, ["Field is required"])
+          set_nested_error(errors, current_path, ['Field is required'])
           next
         end
 
@@ -43,8 +44,8 @@ module ParameterValidation
 
           # Validate based on type
           validate_field_by_type(type_category, value, type, current_path, struct_class, params, caster, errors)
-        rescue CastingError => e
-          set_nested_error(errors, current_path, [e.message])
+        rescue ::Errors::CastingError
+          set_nested_error(errors, current_path, ['Invalid value'])
         end
       end
 
@@ -62,7 +63,7 @@ module ParameterValidation
     # @param params [Hash] The parameters being validated
     # @param caster [ParameterCaster] The caster for type conversion
     # @param errors [Hash] The errors hash to populate
-    def validate_field_by_type(type_category, value, type, current_path, struct_class, params, caster, errors)
+    def validate_field_by_type(type_category, value, type, current_path, _struct_class, _params, caster, errors)
       case type_category
       when :array
         validate_array(value, type, current_path, caster, errors)
@@ -83,7 +84,7 @@ module ParameterValidation
     # @param errors [Hash] The errors hash to populate
     def validate_array(value, type, current_path, caster, errors)
       unless value.is_a?(Array)
-        set_nested_error(errors, current_path, ["Must be an array"])
+        set_nested_error(errors, current_path, ['Must be an array'])
         return
       end
 
@@ -116,11 +117,9 @@ module ParameterValidation
     # @param caster [ParameterCaster] The caster for type conversion
     # @param array_errors [Hash] The array errors hash to populate
     def validate_array_item(item, type, index, caster, array_errors)
-      begin
-        caster.cast_value(item, type)
-      rescue CastingError => e
-        array_errors[index] = [e.message]
-      end
+      caster.cast_value(item, type)
+    rescue CastingError => e
+      array_errors[index] = [e.message]
     end
 
     # Validate a struct value
@@ -141,7 +140,7 @@ module ParameterValidation
     # @param current_path [Array] The current path for nested error reporting
     # @param caster [ParameterCaster] The caster for type conversion
     # @param errors [Hash] The errors hash to populate
-    def validate_primitive(value, type, current_path, caster, errors)
+    def validate_primitive(value, type, _current_path, caster, _errors)
       caster.cast_value(value, type)
     end
   end

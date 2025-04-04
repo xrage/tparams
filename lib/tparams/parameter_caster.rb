@@ -1,4 +1,5 @@
 # typed: false
+
 require_relative 'errors'
 
 # Handles casting between parameter values and their target types
@@ -15,6 +16,14 @@ class ParameterCaster
     return value if value.nil?
     return value if value.is_a?(target_type)
 
+    # Special handling for boolean types
+    if [TrueClass, FalseClass].include?(target_type)
+      # Consider TrueClass and FalseClass as interchangeable
+      return value if value.is_a?(TrueClass) || value.is_a?(FalseClass)
+
+      return cast_to_boolean(value)
+    end
+
     case target_type
     when Integer
       cast_to_integer(value)
@@ -22,8 +31,6 @@ class ParameterCaster
       cast_to_float(value)
     when String
       cast_to_string(value)
-    when TrueClass, FalseClass
-      cast_to_boolean(value)
     when Date
       cast_to_date(value)
     when Time
@@ -34,7 +41,7 @@ class ParameterCaster
       # For other types like Arrays, Hashes, etc.
       # If we got here and it's not the target type already,
       # then it's not castable
-      raise Errors::CastingError.new("Cannot cast #{value.class} to #{target_type}")
+      raise ::Errors::CastingError, "Cannot cast #{value.class} to #{target_type}"
     end
   end
 
@@ -52,12 +59,12 @@ class ParameterCaster
       begin
         Integer(value)
       rescue ArgumentError
-        raise Errors::CastingError.new("Cannot cast '#{value}' to Integer")
+        raise ::Errors::CastingError, "Cannot cast '#{value}' to Integer"
       end
     when Float
       value.to_i
     else
-      raise Errors::CastingError.new("Cannot cast #{value.class} to Integer")
+      raise ::Errors::CastingError, "Cannot cast #{value.class} to Integer"
     end
   end
 
@@ -75,10 +82,10 @@ class ParameterCaster
       begin
         Float(value)
       rescue ArgumentError
-        raise Errors::CastingError.new("Cannot cast '#{value}' to Float")
+        raise ::Errors::CastingError, "Cannot cast '#{value}' to Float"
       end
     else
-      raise Errors::CastingError.new("Cannot cast #{value.class} to Float")
+      raise ::Errors::CastingError, "Cannot cast #{value.class} to Float"
     end
   end
 
@@ -104,12 +111,12 @@ class ParameterCaster
       when 'false', 'f', 'no', 'n', '0'
         false
       else
-        raise Errors::CastingError.new("Cannot cast '#{value}' to Boolean")
+        raise ::Errors::CastingError, "Cannot cast '#{value}' to Boolean"
       end
     when Integer
       value != 0
     else
-      raise Errors::CastingError.new("Cannot cast #{value.class} to Boolean")
+      raise ::Errors::CastingError, "Cannot cast #{value.class} to Boolean"
     end
   end
 
@@ -127,10 +134,10 @@ class ParameterCaster
       begin
         Date.parse(value)
       rescue ArgumentError
-        raise Errors::CastingError.new("Cannot cast '#{value}' to Date")
+        raise ::Errors::CastingError, "Cannot cast '#{value}' to Date"
       end
     else
-      raise Errors::CastingError.new("Cannot cast #{value.class} to Date")
+      raise ::Errors::CastingError, "Cannot cast #{value.class} to Date"
     end
   end
 
@@ -150,12 +157,12 @@ class ParameterCaster
       begin
         Time.parse(value)
       rescue ArgumentError
-        raise Errors::CastingError.new("Cannot cast '#{value}' to Time")
+        raise ::Errors::CastingError, "Cannot cast '#{value}' to Time"
       end
     when Integer
       Time.at(value)
     else
-      raise Errors::CastingError.new("Cannot cast #{value.class} to Time")
+      raise ::Errors::CastingError, "Cannot cast #{value.class} to Time"
     end
   end
 
@@ -175,12 +182,12 @@ class ParameterCaster
       begin
         DateTime.parse(value)
       rescue ArgumentError
-        raise Errors::CastingError.new("Cannot cast '#{value}' to DateTime")
+        raise ::Errors::CastingError, "Cannot cast '#{value}' to DateTime"
       end
     when Integer
       Time.at(value).to_datetime
     else
-      raise Errors::CastingError.new("Cannot cast #{value.class} to DateTime")
+      raise ::Errors::CastingError, "Cannot cast #{value.class} to DateTime"
     end
   end
 end

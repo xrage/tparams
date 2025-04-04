@@ -1,4 +1,5 @@
 # typed: false
+
 module ParameterValidation
   # Provides instance-level validation methods for T::Struct objects
   # These methods are included in each instance of the struct
@@ -11,7 +12,7 @@ module ParameterValidation
     # @return [void]
     sig { void }
     def validate
-      return
+      nil
     end
 
     protected
@@ -24,7 +25,6 @@ module ParameterValidation
       errors = {}
       begin
         validate
-      rescue NotImplementedError
       rescue ::Errors::ValidationError => e
         errors[:base] = e.message
       end
@@ -105,20 +105,20 @@ module ParameterValidation
       return {} if value.empty?
 
       array_errors = {}
-      element_category, element_type = self.class.send(:classify_type_object, type)
+      element_category, = self.class.send(:classify_type_object, type)
 
       if element_category == :struct
         value.each_with_index do |item, index|
           next if item.nil?
 
           # Check if the nested object has a perform_validation method
-          if item.respond_to?(:perform_validation, true)
-            begin
-              item_errors = item.send(:perform_validation)
-              array_errors[index] = item_errors if item_errors.present?
-            rescue ::Errors::ValidationError => e
-              array_errors[index] = e.message
-            end
+          next unless item.respond_to?(:perform_validation, true)
+
+          begin
+            item_errors = item.send(:perform_validation)
+            array_errors[index] = item_errors if item_errors.present?
+          rescue ::Errors::ValidationError => e
+            array_errors[index] = e.message
           end
         end
       end
@@ -155,9 +155,7 @@ module ParameterValidation
 
       if respond_to?(validation_method)
         begin
-          unless send(validation_method)
-            field_errors[key_sym] = 'Invalid value'
-          end
+          field_errors[key_sym] = 'Invalid value' unless send(validation_method)
         rescue ::Errors::ValidationError => e
           field_errors[key_sym] = e.message
         end

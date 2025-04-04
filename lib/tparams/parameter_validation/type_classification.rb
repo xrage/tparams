@@ -1,4 +1,5 @@
 # typed: false
+
 module ParameterValidation
   # Handles the classification and analysis of property types
   # This is the central type handling system that determines how to process each property
@@ -20,7 +21,6 @@ module ParameterValidation
 
       # Compute classification
       result = compute_type_classification(prop_info)
-
       # Cache the result
       @_type_classification_cache[cache_key] = result
     end
@@ -44,13 +44,11 @@ module ParameterValidation
       elsif type_object.respond_to?(:types)
         # Handle union types (T.nilable)
         non_nil_type = type_object.types.find { |t| t.raw_type != NilClass }
-        if non_nil_type
-          return classify_type_object(non_nil_type)
-        end
+        return classify_type_object(non_nil_type) if non_nil_type
       end
 
       # Default for primitives and unhandled types
-      return :primitive, prop_info[:type]
+      [:primitive, prop_info[:type]]
     end
 
     # Get classification from a type_object directly
@@ -90,7 +88,7 @@ module ParameterValidation
       end
 
       # Default
-      return :primitive, type_object
+      [:primitive, type_object]
     end
 
     # Extract the actual type from a prop_info for validation
@@ -98,7 +96,7 @@ module ParameterValidation
     # @param prop_info [Hash] The property information
     # @return [Class] The actual type for validation
     def extract_type(prop_info)
-      type_category, type = classify_type(prop_info)
+      _, type = classify_type(prop_info)
       type
     end
 
