@@ -4,7 +4,6 @@ module TParams
   # Handles processing and validation of ActionController parameters
   # This ensures parameters are properly structured and permitted before conversion
   module ParameterProcessing
-
     # Get the permitted keys for a struct class
     # This creates a structure of keys that can be used with params.permit
     # Results are cached for performance.
@@ -35,11 +34,11 @@ module TParams
         case type_category
         when :array
           element_category, element_type = classify_type_object(type)
-          if element_category == :struct
-            permitted[key_sym] = [permitted_keys(element_type)]
-          else
-            permitted[key_sym] = []
-          end
+          permitted[key_sym] = if element_category == :struct
+                                 [permitted_keys(element_type)]
+                               else
+                                 []
+                               end
         when :struct
           permitted[key_sym] = permitted_keys(type)
         else
@@ -84,7 +83,8 @@ module TParams
     def permitted_params(params:)
       cleaned_params = build_safe_params(params, self)
       errors = validate_keys(cleaned_params, self)
-      raise ::Errors::ValidationError.new(errors) if errors.any?
+      raise ::Errors::ValidationError, errors if errors.any?
+
       cleaned_params
     end
 

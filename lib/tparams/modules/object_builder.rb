@@ -73,31 +73,41 @@ module TParams
     # @return [T::Struct, nil] The converted struct or nil
     def convert_struct_value(value, type)
       return nil if value.nil?
+      return value if value.is_a?(type)
+      return nil unless value.is_a?(Hash) || value.is_a?(ActionController::Parameters)
 
-      if value.is_a?(Hash) || value.is_a?(ActionController::Parameters)
-        # Build struct directly without validation
-        raw_params = value.is_a?(ActionController::Parameters) ? value.to_unsafe_h.symbolize_keys : value.symbolize_keys
+      # Convert to symbolized hash
+      params_hash = if value.is_a?(ActionController::Parameters)
+                      value.to_unsafe_h.symbolize_keys
+                    else
+                      value.symbolize_keys
+                    end
 
-        # Convert nested parameters for this struct
-        converted_params = {}
-        type.props.each do |k, prop_info|
-          k_sym = k.to_sym
-          next unless raw_params.key?(k_sym)
+      # Build converted parameters
+      converted_params = build_converted_params(params_hash, type)
 
-          v = raw_params[k_sym]
-          next if v.nil?
+      # Create and return the struct instance
+      type.new(**converted_params)
+    end
 
-          type_category, nested_type = classify_type(prop_info)
-          converted_params[k_sym] = convert_value_by_type(type_category, v, nested_type, prop_info)
-        end
+    private
 
-        # Create the struct instance directly
-        type.new(**converted_params)
-      elsif value.is_a?(type)
-        value # Already the right type
-      else
-        nil # Can't convert
+    # Extract nested parameter conversion to a separate method
+    def build_converted_params(params_hash, struct_type)
+      converted_params = {}
+
+      struct_type.props.each do |key, prop_info|
+        key_sym = key.to_sym
+        next unless params_hash.key?(key_sym)
+
+        param_value = params_hash[key_sym]
+        next if param_value.nil?
+
+        type_category, nested_type = classify_type(prop_info)
+        converted_params[key_sym] = convert_value_by_type(type_category, param_value, nested_type, prop_info)
       end
+
+      converted_params
     end
 
     # Convert a value to an enum

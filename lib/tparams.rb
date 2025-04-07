@@ -25,18 +25,16 @@ require_relative 'tparams/parameter_caster'
 #   # Create and validate from parameters
 #   dto = MyDTO.build_from_params(params: params)
 module TParams
-end
+  # Load all component files
+  require_relative 'tparams/modules/instance_methods'
+  require_relative 'tparams/modules/property_options'
+  require_relative 'tparams/modules/type_classification'
+  require_relative 'tparams/modules/parameter_processing'
+  require_relative 'tparams/modules/type_validation'
+  require_relative 'tparams/modules/object_builder'
 
-# Load all component files
-require_relative 'tparams/modules/instance_methods'
-require_relative 'tparams/modules/property_options'
-require_relative 'tparams/modules/type_classification'
-require_relative 'tparams/modules/parameter_processing'
-require_relative 'tparams/modules/type_validation'
-require_relative 'tparams/modules/object_builder'
-
-# When a class extends this module, it gets all the functionality needed for validation
-# @param base [Class] The class extending this module
+  # When a class extends this module, it gets all the functionality needed for validation
+  # @param base [Class] The class extending this module
   def self.extended(base)
     base.extend(T::Sig)
     base.include(TParams::InstanceMethods)
@@ -71,7 +69,7 @@ require_relative 'tparams/modules/object_builder'
 
     # Validate the object and all its nested properties
     errors = object.send(:perform_validation)
-    raise ::Errors::ValidationError.new(errors) if errors.any?
+    raise ::Errors::ValidationError, errors if errors.any?
 
     object
   end

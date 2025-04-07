@@ -4,7 +4,6 @@ module TParams
   # Handles validation of field values based on their types
   # This ensures that all values conform to their expected types
   module TypeValidation
-
     # Validate all the keys in a parameters hash against a struct class
     # Optimized to minimize object creation during validation
     #
@@ -42,7 +41,7 @@ module TParams
           current_path = path + [key_sym]
 
           # Validate based on type
-          validate_field_by_type(type_category, value, type, current_path, struct_class, params, caster, errors)
+          validate_field_by_type(type_category, value, type, current_path, caster, errors)
         rescue ::Errors::CastingError
           set_nested_error(errors, current_path, ['Invalid value'])
         end
@@ -58,11 +57,9 @@ module TParams
     # @param value [Object] The value to validate
     # @param type [Class] The expected type
     # @param current_path [Array] The current path for nested error reporting
-    # @param struct_class [Class] The T::Struct class
-    # @param params [Hash] The parameters being validated
     # @param caster [ParameterCaster] The caster for type conversion
     # @param errors [Hash] The errors hash to populate
-    def validate_field_by_type(type_category, value, type, current_path, _struct_class, _params, caster, errors)
+    def validate_field_by_type(type_category, value, type, current_path, caster, errors) # rubocop:disable Metrics/ParameterLists
       case type_category
       when :array
         validate_array(value, type, current_path, caster, errors)
