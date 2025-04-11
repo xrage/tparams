@@ -41,7 +41,7 @@ module TParams
         end
       elsif type_object.respond_to?(:types)
         # Handle union types (T.nilable)
-        non_nil_type = type_object.types.find { |t| t.raw_type != NilClass }
+        non_nil_type = type_object.types.find { |t| t.try(:raw_type) != NilClass }
         return classify_type_object(non_nil_type) if non_nil_type
       end
 

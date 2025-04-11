@@ -43,7 +43,7 @@ module TParams
       when :enum
         convert_enum_value(value, type)
       else # :primitive, :simple
-        value
+        ParameterCaster.new.cast_value(value, type)
       end
     end
 
