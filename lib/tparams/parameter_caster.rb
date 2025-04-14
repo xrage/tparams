@@ -24,18 +24,17 @@ class ParameterCaster
       return cast_to_boolean(value)
     end
 
-    case target_type
-    when Integer
+    if target_type == Integer
       cast_to_integer(value)
-    when Float
+    elsif target_type == Float
       cast_to_float(value)
-    when String
+    elsif target_type == String
       cast_to_string(value)
-    when Date
+    elsif target_type == Date
       cast_to_date(value)
-    when Time
+    elsif target_type == Time
       cast_to_time(value)
-    when DateTime
+    elsif target_type == DateTime
       cast_to_datetime(value)
     else
       # For other types like Arrays, Hashes, etc.
