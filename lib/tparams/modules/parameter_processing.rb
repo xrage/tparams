@@ -58,6 +58,8 @@ module TParams
           { key => convert_hash_to_nested_array(value.first) }
         elsif value.is_a?(Array)
           { key => [] }
+        elsif value.is_a?(Hash)
+          { key => convert_hash_to_nested_array(value) }
         else
           key # Just return the key symbol directly
         end
