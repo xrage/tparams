@@ -36,6 +36,8 @@ class ParameterCaster
       cast_to_time(value)
     elsif target_type == DateTime
       cast_to_datetime(value)
+    elsif defined?(T::Enum) && target_type.ancestors.include?(T::Enum)
+      cast_to_enum(value, target_type)
     else
       # For other types like Arrays, Hashes, etc.
       # If we got here and it's not the target type already,
@@ -187,6 +189,26 @@ class ParameterCaster
       Time.at(value).to_datetime
     else
       raise ::Errors::CastingError, "Cannot cast #{value.class} to DateTime"
+    end
+  end
+
+  # Cast a value to T::Enum
+  # @param value [Object] The value to cast
+  # @param enum_class [Class] The T::Enum class to cast to
+  # @return [T::Enum] The cast enum value
+  # @raise [Errors::CastingError] If the value cannot be cast to the T::Enum
+  def cast_to_enum(value, enum_class)
+    case value
+    when enum_class
+      value
+    when String, Integer
+      begin
+        enum_class.deserialize(value)
+      rescue KeyError
+        raise ::Errors::CastingError, "Cannot cast '#{value}' to #{enum_class}"
+      end
+    else
+      raise ::Errors::CastingError, "Cannot cast #{value.class} to #{enum_class}"
     end
   end
 end
